@@ -11,6 +11,13 @@ public class ZipCodeRangeSet {
 		zipCodeRanges = new ArrayList<IntRange>();
 	}
 	
+	/**
+	 * Create an object initialized with zip code ranges
+ 	 * <p>
+	 * The zip codes are stored as a series of ranges of integers (each range includes both their upper and lower bounds)
+	 *
+	 * @param ranges the initial zip code ranges
+	 */
 	public ZipCodeRangeSet(int[][] ranges)
 	{
 		this();
@@ -18,8 +25,17 @@ public class ZipCodeRangeSet {
 			insertRange(range[0], range[1]);
 	}
 		
+	/**
+	 * Insert a new zip code range while handling any conflicts with existing ranges
+	 * 
+	 * @param beginRange the beginning of the zip code range to add
+	 * @param endRange the end of the zip code range to add (cannot be less that beginRange)
+	 */
 	public void insertRange(int beginRange, int endRange)
 	{
+		if (endRange < beginRange)
+			throw new IllegalArgumentException("endRange cannot be less than beginRange");
+		
 		int firstConflictIndex = 0;
 		while(firstConflictIndex < zipCodeRanges.size() && zipCodeRanges.get(firstConflictIndex).end + 1 < beginRange)
 			firstConflictIndex++;
@@ -30,6 +46,12 @@ public class ZipCodeRangeSet {
 		while(tryMergeAtIndex(firstConflictIndex));
 	}
 	
+	/**
+	 * Try to merge a zip code range with the next one in the list
+	 * 
+	 * @param startIndex the index of the zip code range to merge 
+	 * @return whether the merge was successful 
+	 */
 	private boolean tryMergeAtIndex(int startIndex)
 	{
 		// No next value, so fail to merge
@@ -53,6 +75,13 @@ public class ZipCodeRangeSet {
 		return true;
 	}
 	
+	/**
+	 * Creates a copy of the zip code ranges in the array syntax
+	 * <p>
+	 * The zip codes are stored as a series of ranges of integers (each range includes both their upper and lower bounds)
+	 * 
+	 * @return the current array of zip code ranges as a 2-dimensional array
+	 */
 	public int[][] asArray()
 	{
 		return zipCodeRanges.stream()
@@ -60,6 +89,14 @@ public class ZipCodeRangeSet {
 				.toArray(int[][]::new);
 	}
 	
+	/**
+	 * Combines overlapping and adjacent zip code ranges. 
+	 * <p>
+	 * The zip codes are stored as a series of ranges of integers (each range includes both their upper and lower bounds)
+	 *  
+	 * @param input the initial array of zip code ranges
+	 * @return the simplified array of zip code ranges
+	 */
 	public static int[][] getMerged(int[][] input)
 	{
 		return new ZipCodeRangeSet(input).asArray();
